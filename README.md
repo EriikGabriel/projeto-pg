@@ -18,7 +18,7 @@ Se você deseja testar e executar o projeto em sua máquina, siga o passo a pass
 1. Em seu terminal, **acesse a pasta raiz do projeto** e execute o seguinte comando para instalar todos os pacotes e dependencias do projeto:
 ```npm install```
 
-2. Para rodar o projeto na sua máquina em ambiente de desenvolvimento, execute o comando:
+2. Para rodar o projeto na sua máquina, execute o comando:
 ```npm run dev```
 
 Após seguir esses passos e não obter nenhum erro, logo em seguida, um servidor web local deve ser estabelecido na porta padrão `5173` (caso essa porta já esteja ocupada, ele estabelecerá o servidor na porta seguinte disponível), sendo acessível pela url:
