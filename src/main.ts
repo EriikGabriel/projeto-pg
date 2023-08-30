@@ -1,5 +1,5 @@
 import {
-  BoxGeometry,
+  SphereGeometry,
   DirectionalLight,
   Mesh,
   MeshPhongMaterial,
@@ -8,6 +8,7 @@ import {
 
 import { Camera } from "./core/Camera"
 import { Renderer } from "./core/Renderer"
+import { TextureLoader } from "three"
 
 // Get main canvas element
 const canvas = document.getElementById("app") as HTMLCanvasElement
@@ -19,17 +20,21 @@ const mainCamera = new Camera()
 // Create scene
 const scene = new Scene()
 
+// load a texture
+const textureLoader = new TextureLoader();
+const texture = textureLoader.load("jupiter.jpg");
+
 // Create cube geometry and material
-const geometry = new BoxGeometry()
-const material = new MeshPhongMaterial({ color: 0x00ff00 })
+const geometry = new SphereGeometry()
+const material = new MeshPhongMaterial({ map: texture })
 
 // Create cube mesh and set position
-const cube = new Mesh(geometry, material)
-cube.position.z = -5
-cube.position.x = 0
+const sphere = new Mesh(geometry, material)
+sphere.position.z = -5
+sphere.position.x = 0
 
 // Add cube to scene
-scene.add(cube)
+scene.add(sphere)
 
 // Create directional light, set color, intensity and position
 const light = new DirectionalLight(0xffffff, 1)
@@ -42,6 +47,9 @@ scene.add(light)
 function process() {
   renderer.render(scene, mainCamera)
   requestAnimationFrame(process)
+  sphere.rotateY(0.3)
+  sphere.rotateX(0.1)
+  sphere.rotateZ(0.1)
 }
 
 process()
