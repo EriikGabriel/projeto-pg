@@ -1,4 +1,4 @@
-import { WebGLRenderer } from "three"
+import { PCFSoftShadowMap, ReinhardToneMapping, WebGLRenderer } from "three"
 
 export class Renderer extends WebGLRenderer {
   constructor(canvas: HTMLCanvasElement) {
@@ -7,6 +7,10 @@ export class Renderer extends WebGLRenderer {
 
     // Set renderer size to window size
     this.setSize(innerWidth, innerHeight)
+    this.toneMapping = ReinhardToneMapping
+    this.toneMappingExposure = 2.3
+    this.shadowMap.enabled = true
+    this.shadowMap.type = PCFSoftShadowMap
 
     // Update renderer size on window resize
     addEventListener("resize", () => {
