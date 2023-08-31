@@ -44,25 +44,6 @@ const raycasterHelper = new ArrowHelper(
 
 scene.add(raycasterHelper)
 
-// Create pointer lock controls
-const pointerControl = new PointerLockControls(mainCamera, document.body)
-scene.add(pointerControl.getObject())
-
-// Add axes helper
-scene.add(new AxesHelper(500))
-
-// Create hemisphere light
-const hemiLight = new HemisphereLight("#29294d", "#080820", 2)
-scene.add(hemiLight)
-
-// Create a moon light
-const moonLight = new MoonLight({ x: -5, y: 3, z: -3 })
-scene.add(moonLight, moonLight.helper)
-
-// Create bulb light
-const bulbLight = new BulbLight({ x: 1.47, y: 0.75, z: -1.3 })
-scene.add(bulbLight, bulbLight.helper)
-
 // Load scenario model
 const bedroom = await Bedroom.object()
 scene.add(bedroom)
@@ -121,4 +102,3 @@ function animate(timeElapsed: number) {
   }
 
   playerCamera.update_(timeElapsedS)
-}
