@@ -19,7 +19,9 @@ import { PlayerCamera } from "./core/PlayerCamera"
 import { BulbLight } from "./lights/BulbLight"
 import { MoonLight } from "./lights/MoonLight"
 
+import { JupiterLight } from "./lights/JupiterLight"
 import { Bedroom } from "./models/Bedroom"
+import { Jupiter } from "./models/Jupiter/Jupiter"
 import { Moon } from "./models/Moon"
 import { Satellite } from "./models/Satellite"
 
@@ -69,10 +71,18 @@ scene.add(hemiLight)
 const bedroom = await Bedroom.object()
 scene.add(bedroom)
 
+// Create bulb light
+const bulbLight = new BulbLight({ x: 1.47, y: 0.75, z: -1.3 })
+scene.add(bulbLight, bulbLight.helper)
+
 // Add moon object
 const moon = new Moon()
 moon.position.set(-30, 10, -3)
 scene.add(moon)
+
+// Create a moon light
+const moonLight = new MoonLight({ x: -30, y: 10, z: -3 })
+scene.add(moonLight, moonLight.helper)
 
 // Add satellite object
 const satellite = new Satellite().getMesh()
@@ -81,13 +91,15 @@ satellite.position.set(-30, 10, 5)
 satellite.rotation.x = Math.PI / 2
 scene.add(satellite)
 
-// Create a moon light
-const moonLight = new MoonLight({ x: -30, y: 10, z: -3 })
-scene.add(moonLight, moonLight.helper)
+// Add Jupiter
+const jupiter = new Jupiter().model
+jupiter.position.set(-60, 25, 5)
 
-// Create bulb light
-const bulbLight = new BulbLight({ x: 1.47, y: 0.75, z: -1.3 })
-scene.add(bulbLight, bulbLight.helper)
+scene.add(jupiter)
+
+// Create jupiter light
+const jupiterLight = new JupiterLight({ x: -60, y: 25, z: 5 })
+scene.add(jupiterLight, jupiterLight.helper)
 
 // Start rendering
 let previousFrameTime: number | null = null
@@ -119,6 +131,8 @@ function process() {
 
 function animate(timeElapsed: number) {
   const timeElapsedS = timeElapsed * 0.001
+
+  jupiter.rotateY(0.01)
 
   if (pointerControl.isLocked) {
     raycaster.ray.origin.copy(pointerControl.getObject().position)
