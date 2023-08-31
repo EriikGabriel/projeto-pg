@@ -34,6 +34,8 @@ export class Bedroom {
 
     bedroom.add(bedroomInterior, wallLeft, wallBack, roof)
 
+    bedroom.name = "bedroom"
+
     return bedroom
   }
 }
