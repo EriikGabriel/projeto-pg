@@ -92,7 +92,7 @@ satellite.rotation.x = Math.PI / 2
 scene.add(satellite)
 
 // Add Jupiter
-const jupiter = new Jupiter().model
+const jupiter = new Jupiter()
 jupiter.position.set(-60, 25, 5)
 
 scene.add(jupiter)
@@ -132,7 +132,7 @@ function process() {
 function animate(timeElapsed: number) {
   const timeElapsedS = timeElapsed * 0.001
 
-  jupiter.rotateY(0.01)
+  jupiter.rotateY(0.005)
 
   if (pointerControl.isLocked) {
     raycaster.ray.origin.copy(pointerControl.getObject().position)
