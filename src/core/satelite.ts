@@ -9,12 +9,16 @@ export class Satellite {
         // Shader do corpo, shader cria um efeito metálico para o corpo do satélite.
         const bodyShader = {
             vertexShader:
+            //Calculamos a normal que sera utilizada para calcular o ângulo entre a superfície e a fonte de luz 
             `varying vec3 vNormal;
              void main() {
                 vNormal = normalize(normalMatrix * normal);
                 gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
                 }`,
             fragmentShader: 
+            //calculamos a intensidade da luz refletida utilizando o produto escalar entre a normal (vNormal) e uma direção de luz. 
+            //Elevamos isso a uma potência alta para acentuar a diferença entre áreas iluminadas e sombreadas.
+            // Finalmente, misturamos a cor base do corpo (cinza médio) com a intensidade calculada para dar o efeito metálico.
             `varying vec3 vNormal;
              void main() {
                 float intensity = pow(dot(vNormal, vec3(0.0, 1.0, 0.0)), 4.0);
@@ -24,6 +28,7 @@ export class Satellite {
         
         //Shader da atena, shader aplica um gradiente de cor à antena.
         const antennaShader = {
+            //Passamos as coordenadas de textura ('uv')
             vertexShader: `
                 varying vec2 vUv;
                 void main() {
@@ -31,6 +36,8 @@ export class Satellite {
                     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
                 }
             `,
+            //Usamos as coordenadas de textura (vUv) para criar um gradiente vertical. 
+            //A cor na parte inferior da antena é mais escura (vec4(0.2, 0.2, 0.2, 1.0)) e a cor na parte superior é mais clara (vec4(0.6, 0.6, 0.6, 1.0)).
             fragmentShader: `
                 varying vec2 vUv;
                 void main() {
@@ -41,11 +48,13 @@ export class Satellite {
 
         // Shader para os braços, shader aplica uma cor sólida aos braços de conexão.
         const armShader = {
+            //Calculado a posição dos vertices 
             vertexShader: `
                 void main() {
                     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
                 }
             `,
+            //Atribuimos uma cor para os pixels do vertice
             fragmentShader: `
                 void main() {
                     gl_FragColor = vec4(0.1, 0.1, 0.1, 1.0); // dark color
@@ -55,6 +64,7 @@ export class Satellite {
 
         // Shader para os paineis, cria um efeito de reflexão nas células solares dos painéis.
         const panelShader = {
+            //Calculo da normal
             vertexShader: `
                 varying vec3 vNormal;
                 void main() {
@@ -62,6 +72,9 @@ export class Satellite {
                     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
                 }
             `,
+            // calculamos a reflexão da luz com base na normal.
+            // Quanto mais próxima a normal estiver da direção de reflexão, mais intensa é a reflexão. Utilizamos essa reflexão para misturar duas cores:
+            // uma mais escura (vec4(0.0, 0.2, 0.1, 1.0)) e outra mais clara (vec4(0.0, 0.5, 0.25, 1.0)).
             fragmentShader: `
                 varying vec3 vNormal;
                 void main() {
@@ -74,7 +87,7 @@ export class Satellite {
         
         
 
-        
+        //Craindo os materiais de acordo com os shaders criados
         const bodyMaterial = new THREE.ShaderMaterial({
             vertexShader: bodyShader.vertexShader,
             fragmentShader: bodyShader.fragmentShader
