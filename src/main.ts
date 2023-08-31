@@ -44,6 +44,13 @@ const raycasterHelper = new ArrowHelper(
 
 scene.add(raycasterHelper)
 
+// Load scenario model
+const bedroom = await Bedroom.object()
+scene.add(bedroom)
+
+// Create first person camera
+const playerCamera = new PlayerCamera(mainCamera, canvas)
+
 // Create pointer lock controls
 const pointerControl = new PointerLockControls(mainCamera, document.body)
 scene.add(pointerControl.getObject())
@@ -120,5 +127,6 @@ function animate(timeElapsed: number) {
     }
   }
 
+  playerCamera.update_(timeElapsedS)
   playerCamera.update_(timeElapsedS)
 }
