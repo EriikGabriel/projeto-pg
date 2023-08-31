@@ -8,7 +8,7 @@ type MoonLightProps = {
 
 export class MoonLight extends SpotLight {
   constructor({ x, y, z }: MoonLightProps) {
-    super("#ffffff", 15)
+    super("#ffffff", 100)
 
     this.position.set(x, y, z)
     this.castShadow = true
