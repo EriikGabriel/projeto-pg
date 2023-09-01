@@ -1,4 +1,15 @@
-import { Color, HemisphereLight, Object3D, Scene, Vector2 } from "three"
+import {
+  BackSide,
+  BoxGeometry,
+  Color,
+  HemisphereLight,
+  Mesh,
+  MeshBasicMaterial,
+  Object3D,
+  Scene,
+  TextureLoader,
+  Vector2,
+} from "three"
 
 import { PointerLockControls } from "three/addons/controls/PointerLockControls.js"
 
@@ -39,6 +50,29 @@ let isTelescopeView = false
 // Create scene
 const scene = new Scene()
 scene.background = new Color("#080820")
+
+// Create a skybox
+const skyboxMaterial: MeshBasicMaterial[] = []
+const texture_xneg = new TextureLoader().load("Skybox/xneg.png")
+const texture_xpos = new TextureLoader().load("Skybox/xpos.png")
+const texture_yneg = new TextureLoader().load("Skybox/yneg.png")
+const texture_ypos = new TextureLoader().load("Skybox/ypos.png")
+const texture_zneg = new TextureLoader().load("Skybox/zneg.png")
+const texture_zpos = new TextureLoader().load("Skybox/zpos.png")
+
+skyboxMaterial.push(
+  new MeshBasicMaterial({ map: texture_xpos, side: BackSide }),
+  new MeshBasicMaterial({ map: texture_xneg, side: BackSide }),
+  new MeshBasicMaterial({ map: texture_ypos, side: BackSide }),
+  new MeshBasicMaterial({ map: texture_yneg, side: BackSide }),
+  new MeshBasicMaterial({ map: texture_zpos, side: BackSide }),
+  new MeshBasicMaterial({ map: texture_zneg, side: BackSide })
+)
+
+const skyboxGeometry = new BoxGeometry(1024, 1024, 1024)
+const skybox = new Mesh(skyboxGeometry, skyboxMaterial)
+
+scene.add(skybox)
 
 // Create player controls
 const playerControls = new PlayerControls(canvas)
