@@ -2,6 +2,7 @@ import {
   BackSide,
   BoxGeometry,
   Color,
+  ConeGeometry,
   HemisphereLight,
   Mesh,
   MeshBasicMaterial,
@@ -46,6 +47,8 @@ const interactiveObjects: Object3D[] = []
 
 let inFieldVision = false
 let isTelescopeView = false
+
+let interactiveObjectName: string
 
 // Create scene
 const scene = new Scene()
@@ -96,6 +99,17 @@ scene.add(bedroom)
 const bulbLight = new BulbLight({ x: 1.47, y: 0.75, z: -1.3 })
 scene.add(bulbLight)
 
+// Create bulb interactive object
+const bulbGeometry = new ConeGeometry(0.1, 0.2, 4)
+const bulbMaterial = new MeshBasicMaterial({ color: "#f3e77b" })
+const bulb = new Mesh(bulbGeometry, bulbMaterial)
+
+bulb.position.set(1.47, 0.75, -1.3)
+bulb.visible = false
+bulb.name = "lâmpada"
+
+scene.add(bulb)
+
 // Add moon object
 const moon = new Moon()
 moon.position.set(-30, 10, -3)
@@ -128,17 +142,17 @@ scene.add(telescope)
 const telescopeCamera = new Camera()
 telescopeCamera.position.set(
   telescope.position.x - 5,
-  telescope.position.y + 3,
+  telescope.position.y + 10,
   telescope.position.z
 )
 
-telescopeCamera.lookAt(moon.position)
+telescopeCamera.rotation.set(0, 1.6, 0)
 
 // Start rendering
 let previousFrameTime: number | null = null
 
 objects.push(bedroom)
-interactiveObjects.push(bulbLight, telescope)
+interactiveObjects.push(bulb, telescope)
 
 process()
 
@@ -170,12 +184,16 @@ function animate(timeElapsed: number) {
   const timeElapsedS = timeElapsed * 0.001
 
   jupiter.rotateY(0.005)
+  satellite.rotateY(0.005)
+  satellite.rotateZ(0.005)
 
   playerView()
 
-  if (isTelescopeView) telescopeView()
-
-  playerCamera.update_(timeElapsedS)
+  if (isTelescopeView) {
+    telescopeView()
+  } else {
+    playerCamera.update_(timeElapsedS)
+  }
 }
 
 function playerView() {
@@ -196,16 +214,14 @@ function playerView() {
 
   const onObject = intersections.length > 0
 
-  let objectName: string
-
   if (onObject) {
     intersections.forEach((intersection) => {
-      const object = intersection.object.parent?.parent
+      const object = intersection.object.parent?.parent ?? intersection.object
 
       interactText.textContent = `Interagir com ${object?.name}`
       interactDiv.style.display = "flex"
 
-      objectName = object?.name ?? ""
+      interactiveObjectName = object?.name ?? ""
 
       inFieldVision = true
     })
@@ -214,22 +230,75 @@ function playerView() {
     inFieldVision = false
   }
 
-  addEventListener("click", () => {
-    if (inFieldVision) {
-      switch (objectName) {
-        case "lâmpada":
-          break
-        case "telescópio":
-          changeToTelescopeView()
-          break
-      }
+  addEventListener("click", () => interactiveMap(interactiveObjectName))
+}
+
+function interactiveMap(objectName: string) {
+  if (inFieldVision) {
+    switch (objectName) {
+      case "lâmpada":
+        bulbLight.intensity = bulbLight.intensity === 0 ? 0.4 : 0
+        break
+      case "telescópio":
+        changeToTelescopeView()
+        break
+      default:
+        console.warn("Objeto não interativo")
+        break
     }
-  })
+  }
 }
 
 function telescopeView() {
+  let lookingAt: string
+  let isZoomed = false
+
   addEventListener("keydown", (e) => {
-    if (e.key === " ") changeToBedroomView()
+    switch (e.key.toUpperCase()) {
+      case " ":
+        changeToBedroomView()
+        break
+      case "1":
+        telescopeCamera.lookAt(moon.position)
+        lookingAt = "moon"
+        break
+      case "2":
+        telescopeCamera.lookAt(jupiter.position)
+        lookingAt = "jupiter"
+        break
+      case "3":
+        telescopeCamera.lookAt(satellite.position)
+        lookingAt = "satellite"
+        break
+      case "Z":
+        if (isZoomed) {
+          telescopeCamera.position.set(
+            telescope.position.x - 5,
+            telescope.position.y + 10,
+            telescope.position.z
+          )
+          break
+        }
+
+        if (lookingAt === "moon") {
+          telescopeCamera.position.z = moon.position.z
+          telescopeCamera.position.x = moon.position.x + 5
+          telescopeCamera.lookAt(moon.position)
+        }
+
+        if (lookingAt === "jupiter") {
+          telescopeCamera.position.x = jupiter.position.x + 20
+          telescopeCamera.position.y = jupiter.position.y
+          telescopeCamera.lookAt(jupiter.position)
+        }
+
+        if (lookingAt === "satellite") {
+          telescopeCamera.position.z = satellite.position.z
+          telescopeCamera.position.x = satellite.position.x + 10
+          telescopeCamera.lookAt(satellite.position)
+        }
+        isZoomed = !isZoomed
+    }
   })
 }
 
@@ -237,7 +306,10 @@ function changeToTelescopeView() {
   isTelescopeView = true
 
   const backDiv = document.getElementById("back-key") as HTMLDivElement
+  const menuDiv = document.getElementById("telescope-menu") as HTMLDivElement
+
   backDiv.style.display = "flex"
+  menuDiv.style.display = "flex"
 
   playerCamera.viewRaycaster.far = 0
 }
@@ -246,7 +318,10 @@ function changeToBedroomView() {
   isTelescopeView = false
 
   const backDiv = document.getElementById("back-key") as HTMLDivElement
+  const menuDiv = document.getElementById("telescope-menu") as HTMLDivElement
+
   backDiv.style.display = "none"
+  menuDiv.style.display = "none"
 
   playerCamera.viewRaycaster.far = 2
 }

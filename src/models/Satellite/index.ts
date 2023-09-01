@@ -3,7 +3,6 @@ import {
   CylinderGeometry,
   Group,
   Mesh,
-  PlaneGeometry,
   ShaderMaterial,
 } from "three"
 
@@ -118,7 +117,7 @@ export class Satellite {
     const body = new Mesh(bodyGeometry, bodyMaterial)
 
     // Criar painéis solares
-    const panelGeometry = new PlaneGeometry(2, 8)
+    const panelGeometry = new BoxGeometry(2, 8, 0.5)
     const leftPanel = new Mesh(panelGeometry, panelMaterial)
     leftPanel.position.set(-5, 0, 0)
     leftPanel.rotation.y = Math.PI / 2
@@ -133,14 +132,12 @@ export class Satellite {
     antenna.position.set(0, 5, 0)
     antenna.rotation.x = Math.PI / 2
 
-    //ligar a antena ao corpo principal do satélite
-
+    // ligar a antena ao corpo principal do satélite
     const connectorGeometry = new CylinderGeometry(0.4, 0.9, 2, 32)
     const connector = new Mesh(connectorGeometry, armMaterial)
     connector.position.set(0, 3, 0) // Positioned between the body and the antenna
 
-    //ligar os painéis ao corpo principal do satélite
-
+    // ligar os painéis ao corpo principal do satélite
     const armGeometry = new BoxGeometry(5.5, 0.5, 2)
     const leftArm = new Mesh(armGeometry, armMaterial)
     leftArm.position.set(-2, 0, 0)

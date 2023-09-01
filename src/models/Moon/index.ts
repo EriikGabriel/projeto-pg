@@ -18,8 +18,8 @@ export class Moon extends Mesh {
       displacementScale: 0.06,
       bumpMap: displacementMap,
       bumpScale: 0.04,
-      reflectivity: 0,
-      shininess: 0,
+      reflectivity: 5,
+      shininess: 100,
     })
 
     super(geometry, material)

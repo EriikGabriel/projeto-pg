@@ -22,6 +22,22 @@ body {
   min-height: 100vh;
 }
 
+.ui {
+  position: absolute;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  font-size: 1rem;
+  text-transform: uppercase;
+  font-weight: bold;
+  user-select: none;
+}
+
+div > img {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
 #interact-key {
   display: none;
 }
@@ -39,21 +55,20 @@ body {
   user-select: none;
 }
 
-#interact-key > div > img {
-  width: 2.5rem;
-  height: 2.5rem;
-}
-
 #back-key {
-  position: absolute;
+  flex-direction: column;
   bottom: 20px;
   left: 40%;
-  padding: 1rem;
-  font-size: 1rem;
-  display: none;
-  justify-content: center;
+}
+
+#telescope-menu {
+  flex-direction: column;
+  right: 50px;
+}
+
+#telescope-menu > div {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  text-transform: uppercase;
-  font-weight: bold;
-  user-select: none;
+  width: 20rem;
 }
