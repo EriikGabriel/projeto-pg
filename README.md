@@ -36,8 +36,8 @@ Pronto! Seu projeto está devidamente configurado e rodando...
 - `A` - Mover-se para esquerda
 - `S` - Mover-se para trás
 - `D` - Mover-se para direita
-- `Botão esquerdo do mouse` - Interage com objetos em cena
-- `Esc` - Abre o menu de pause da cena
+- `Botão esquerdo do mouse / Espaço` - Interage com objetos em cena
+- `Esc` - Pausa a cena
 
 ## 🎥 Câmeras
 
@@ -58,4 +58,4 @@ Pronto! Seu projeto está devidamente configurado e rodando...
 ## Movimento de objeto
 
 - Rotação de jupiter - `Ariel`
-- Movimentação do satélite - `Erik`
+- Movimentação do satélite - `Erik Gabriel`
