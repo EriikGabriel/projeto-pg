@@ -33,7 +33,7 @@ mainCamera.rotation.set(0, 1, 0)
 const objects: Object3D[] = []
 const interactiveObjects: Object3D[] = []
 
-let isInteracting = false
+let inFieldVision = false
 let isTelescopeView = false
 
 // Create scene
@@ -162,6 +162,8 @@ function playerView() {
 
   const onObject = intersections.length > 0
 
+  let objectName: string
+
   if (onObject) {
     intersections.forEach((intersection) => {
       const object = intersection.object.parent?.parent
@@ -169,21 +171,26 @@ function playerView() {
       interactText.textContent = `Interagir com ${object?.name}`
       interactDiv.style.display = "flex"
 
-      addEventListener("click", () => {
-        if (!isInteracting) {
-          switch (object?.name) {
-            case "lâmpada":
-              break
-            case "telescópio":
-              changeToTelescopeView()
-              break
-          }
-        }
-      })
+      objectName = object?.name ?? ""
+
+      inFieldVision = true
     })
   } else {
     interactDiv.style.display = "none"
+    inFieldVision = false
   }
+
+  addEventListener("click", () => {
+    if (inFieldVision) {
+      switch (objectName) {
+        case "lâmpada":
+          break
+        case "telescópio":
+          changeToTelescopeView()
+          break
+      }
+    }
+  })
 }
 
 function telescopeView() {
@@ -193,7 +200,6 @@ function telescopeView() {
 }
 
 function changeToTelescopeView() {
-  isInteracting = true
   isTelescopeView = true
 
   const backDiv = document.getElementById("back-key") as HTMLDivElement
@@ -204,7 +210,6 @@ function changeToTelescopeView() {
 
 function changeToBedroomView() {
   isTelescopeView = false
-  isInteracting = false
 
   const backDiv = document.getElementById("back-key") as HTMLDivElement
   backDiv.style.display = "none"
