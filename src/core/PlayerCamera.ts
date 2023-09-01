@@ -29,6 +29,7 @@ export class PlayerCamera extends FirstPersonControls {
   ) {
     super(camera, canvas)
 
+    // Define todos os valores iniciais
     this.camera = camera
     this.control = control
     this.rotation = new Quaternion()
@@ -42,10 +43,12 @@ export class PlayerCamera extends FirstPersonControls {
     this.headBobTimer = 0
     this.objects = []
 
+    // Define o raio de visão do jogador
     this.viewRaycaster = new Raycaster()
     this.viewRaycaster.far = 2
   }
 
+  // Função que atualiza todos os parâmetros da câmera
   update_(timeElapsedS: number) {
     this.updateRotation()
     this.updateCamera()
@@ -57,6 +60,7 @@ export class PlayerCamera extends FirstPersonControls {
     this.movementSpeed = 0.1
   }
 
+  // Função que atualiza a posição e rotação da câmera
   updateCamera() {
     this.camera.quaternion.copy(this.rotation)
     this.camera.position.copy(this.translation)
@@ -84,6 +88,7 @@ export class PlayerCamera extends FirstPersonControls {
     this.camera.lookAt(closest)
   }
 
+  // Função que atualiza o balanço da cabeça
   updateHeadBob(timeElapsedS: number) {
     if (this.headBobActive) {
       const wavelength = Math.PI
@@ -101,6 +106,7 @@ export class PlayerCamera extends FirstPersonControls {
     }
   }
 
+  // Função que atualiza a posição do jogador no mundo (movimentação)
   updateTranslation(timeElapsedS: number) {
     const forwardVelocity =
       (this.control.key("KeyW") ? 1 : 0) + (this.control.key("KeyS") ? -1 : 0)
@@ -110,10 +116,12 @@ export class PlayerCamera extends FirstPersonControls {
     const qx = new Quaternion()
     qx.setFromAxisAngle(new Vector3(0, 1, 0), this.phi)
 
+    // Movimentação para frontal e traseira
     const forward = new Vector3(0, 0, -this.movementSpeed)
     forward.applyQuaternion(qx)
     forward.multiplyScalar(forwardVelocity * timeElapsedS * 10)
 
+    // Movimentação lateral
     const left = new Vector3(-this.movementSpeed, 0, 0)
     left.applyQuaternion(qx)
     left.multiplyScalar(strafeVelocity * timeElapsedS * 10)
@@ -122,10 +130,11 @@ export class PlayerCamera extends FirstPersonControls {
     this.translation.add(left)
 
     if (forwardVelocity != 0 || strafeVelocity != 0) {
-      // this.headBobActive = true
+      // Para balançar a cabeça -- this.headBobActive = true
     }
   }
 
+  // Função que atualiza a rotação da câmera
   updateRotation() {
     const xh = this.control.current.mouseXDelta / window.innerWidth
     const yh = this.control.current.mouseYDelta / window.innerHeight
@@ -138,11 +147,15 @@ export class PlayerCamera extends FirstPersonControls {
     const minPolarAngle = 0
     const maxPolarAngle = Math.PI
 
+    // Limita o ângulo de rotação da câmera
     this.euler.x = Math.max(
       Math.PI / 2 - maxPolarAngle,
       Math.min(Math.PI / 2 - minPolarAngle, this.euler.x)
     )
 
+    // Atualiza os valores de phi e theta
+    // phi: rotação horizontal
+    // theta: rotação vertical
     this.phi += -xh * this.phiSpeed
     this.theta = clamp(
       this.theta + -yh * this.thetaSpeed,

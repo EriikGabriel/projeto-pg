@@ -17,8 +17,10 @@ export class PlayerControls {
   euler: Euler
 
   constructor(target: HTMLElement) {
+    // Define o elemento alvo para o controle
     this.target = target || document
 
+    // Define os valores atuais e anteriores do controle
     this.current = {
       leftButton: false,
       rightButton: false,
@@ -31,10 +33,12 @@ export class PlayerControls {
     this.keys = {}
     this.euler = new Euler(0, 0, 0, "YXZ")
 
+    // Inicializa o controle
     this.initialize_()
   }
 
   initialize_() {
+    // Adiciona os eventos de mouse e teclado
     addEventListener("mousedown", (e) => this.onMouseDown_(e), false)
     addEventListener("mousemove", (e) => this.onMouseMove_(e), false)
     addEventListener("mouseup", (e) => this.onMouseUp_(e), false)

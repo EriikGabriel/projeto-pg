@@ -15,14 +15,14 @@ export class Satellite {
     // Shader do corpo, shader cria um efeito metálico para o corpo do satélite.
     const bodyShader = {
       vertexShader:
-        //Calculamos a normal que sera utilizada para calcular o ângulo entre a superfície e a fonte de luz
+        // Calculamos a normal que sera utilizada para calcular o ângulo entre a superfície e a fonte de luz
         `varying vec3 vNormal;
           void main() {
             vNormal = normalize(normalMatrix * normal);
             gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
           }`,
       fragmentShader:
-        //calculamos a intensidade da luz refletida utilizando o produto escalar entre a normal (vNormal) e uma direção de luz.
+        // Calculamos a intensidade da luz refletida utilizando o produto escalar entre a normal (vNormal) e uma direção de luz.
         //Elevamos isso a uma potência alta para acentuar a diferença entre áreas iluminadas e sombreadas.
         // Finalmente, misturamos a cor base do corpo (cinza médio) com a intensidade calculada para dar o efeito metálico.
         `varying vec3 vNormal;
