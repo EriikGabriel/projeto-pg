@@ -32,8 +32,6 @@ export class PlayerControls {
     this.euler = new Euler(0, 0, 0, "YXZ")
 
     this.initialize_()
-
-    console.log("PlayerControls initialized")
   }
 
   initialize_() {
@@ -87,7 +85,6 @@ export class PlayerControls {
   }
 
   onKeyDown_(e: KeyboardEvent) {
-    console.log(e.code)
     this.keys[e.code] = true
   }
 

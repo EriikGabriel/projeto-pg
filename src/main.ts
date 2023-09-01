@@ -1,15 +1,5 @@
-import {
-  ArrowHelper,
-  AxesHelper,
-  Color,
-  HemisphereLight,
-  Object3D,
-  Raycaster,
-  Scene,
-  Vector3,
-} from "three"
+import { Color, HemisphereLight, Object3D, Scene, Vector2 } from "three"
 
-import { OrbitControls } from "three/addons/controls/OrbitControls.js"
 import { PointerLockControls } from "three/addons/controls/PointerLockControls.js"
 
 import { Camera } from "./core/Camera"
@@ -19,11 +9,13 @@ import { PlayerCamera } from "./core/PlayerCamera"
 import { BulbLight } from "./lights/BulbLight"
 import { MoonLight } from "./lights/MoonLight"
 
+import { PlayerControls } from "./core/PlayerControls"
 import { JupiterLight } from "./lights/JupiterLight"
 import { Bedroom } from "./models/Bedroom"
 import { Jupiter } from "./models/Jupiter/Jupiter"
 import { Moon } from "./models/Moon"
 import { Satellite } from "./models/Satellite"
+import { Telescope } from "./models/Telescope"
 
 // Get main canvas element
 const canvas = document.getElementById("app") as HTMLCanvasElement
@@ -32,36 +24,31 @@ const canvas = document.getElementById("app") as HTMLCanvasElement
 const renderer = new Renderer(canvas)
 const mainCamera = new Camera()
 
-mainCamera.position.set(0, 1.5, 0)
+// Set camera position
+mainCamera.position.set(1.5, 1, 0)
+mainCamera.rotation.set(0, 1, 0)
+
+// Create telescope camera
 
 const objects: Object3D[] = []
+const interactiveObjects: Object3D[] = []
+
+let isInteracting = false
+let isTelescopeView = false
 
 // Create scene
 const scene = new Scene()
 scene.background = new Color("#080820")
 
-// Create raycaster
-const raycaster = new Raycaster(new Vector3(), new Vector3(0, 0, 1), 0, 30)
-const raycasterHelper = new ArrowHelper(
-  raycaster.ray.direction,
-  raycaster.ray.origin,
-  300,
-  0xff0000
-)
-
-scene.add(raycasterHelper)
+// Create player controls
+const playerControls = new PlayerControls(canvas)
 
 // Create first person camera
-const playerCamera = new PlayerCamera(mainCamera, canvas)
+const playerCamera = new PlayerCamera(mainCamera, playerControls, canvas)
 
 // Create pointer lock controls
 const pointerControl = new PointerLockControls(mainCamera, document.body)
 scene.add(pointerControl.getObject())
-
-const orbitControls = new OrbitControls(mainCamera, renderer.domElement)
-
-// Add axes helper
-scene.add(new AxesHelper(500))
 
 // Create hemisphere light
 const hemiLight = new HemisphereLight("#29294d", "#080820", 2)
@@ -73,7 +60,7 @@ scene.add(bedroom)
 
 // Create bulb light
 const bulbLight = new BulbLight({ x: 1.47, y: 0.75, z: -1.3 })
-scene.add(bulbLight, bulbLight.helper)
+scene.add(bulbLight)
 
 // Add moon object
 const moon = new Moon()
@@ -82,7 +69,7 @@ scene.add(moon)
 
 // Create a moon light
 const moonLight = new MoonLight({ x: -30, y: 10, z: -3 })
-scene.add(moonLight, moonLight.helper)
+scene.add(moonLight)
 
 // Add satellite object
 const satellite = new Satellite().getMesh()
@@ -99,61 +86,128 @@ scene.add(jupiter)
 
 // Create jupiter light
 const jupiterLight = new JupiterLight({ x: -60, y: 25, z: 5 })
-scene.add(jupiterLight, jupiterLight.helper)
+scene.add(jupiterLight)
+
+const telescope = await Telescope.object()
+scene.add(telescope)
+
+const telescopeCamera = new Camera()
+telescopeCamera.position.set(
+  telescope.position.x - 5,
+  telescope.position.y + 3,
+  telescope.position.z
+)
+
+telescopeCamera.lookAt(moon.position)
 
 // Start rendering
 let previousFrameTime: number | null = null
 
 objects.push(bedroom)
+interactiveObjects.push(bulbLight, telescope)
 
 process()
 
 // Main function to render the scene every time a request to canvas is made
 function process() {
   requestAnimationFrame((t) => {
+    canvas.addEventListener("click", () => pointerControl.lock())
+
     if (previousFrameTime === null) previousFrameTime = t
 
-    animate(t - previousFrameTime)
-
-    renderer.autoClear = true
-    renderer.render(scene, mainCamera)
-    renderer.autoClear = false
-
-    // orbitControls.update()
+    if (pointerControl.isLocked) animate(t - previousFrameTime)
 
     previousFrameTime = t
 
-    pointerControl.lock()
-
+    render()
     process()
   })
 }
 
+// Render the scene
+function render() {
+  renderer.autoClear = true
+  renderer.render(scene, isTelescopeView ? telescopeCamera : mainCamera)
+  renderer.autoClear = false
+}
+
+// Function to animate the scene
 function animate(timeElapsed: number) {
   const timeElapsedS = timeElapsed * 0.001
 
   jupiter.rotateY(0.005)
 
-  if (pointerControl.isLocked) {
-    raycaster.ray.origin.copy(pointerControl.getObject().position)
-    raycaster.ray.origin.y = 1
+  playerView()
 
-    const intersections = raycaster.intersectObjects(objects, true)
-    // console.log(intersections)
-    const onObject = intersections.length > 0
-
-    const delta = timeElapsed
-
-    if (onObject === true) {
-      intersections.forEach((intersection) => {
-        const object = intersection.object
-
-        if (object.name !== "") {
-          playerCamera.movementSpeed = Math.max(0, 0)
-        }
-      })
-    }
-  }
+  if (isTelescopeView) telescopeView()
 
   playerCamera.update_(timeElapsedS)
+}
+
+function playerView() {
+  playerCamera.viewRaycaster.setFromCamera(
+    new Vector2(0, 0),
+    pointerControl.getObject()
+  )
+
+  const intersections = playerCamera.viewRaycaster.intersectObjects(
+    interactiveObjects,
+    true
+  )
+
+  const interactDiv = document.getElementById("interact-key") as HTMLDivElement
+  const interactText = document.querySelector(
+    "#interact-key p"
+  ) as HTMLParagraphElement
+
+  const onObject = intersections.length > 0
+
+  if (onObject) {
+    intersections.forEach((intersection) => {
+      const object = intersection.object.parent?.parent
+
+      interactText.textContent = `Interagir com ${object?.name}`
+      interactDiv.style.display = "flex"
+
+      addEventListener("click", () => {
+        if (!isInteracting) {
+          switch (object?.name) {
+            case "lâmpada":
+              break
+            case "telescópio":
+              changeToTelescopeView()
+              break
+          }
+        }
+      })
+    })
+  } else {
+    interactDiv.style.display = "none"
+  }
+}
+
+function telescopeView() {
+  addEventListener("keydown", (e) => {
+    if (e.key === " ") changeToBedroomView()
+  })
+}
+
+function changeToTelescopeView() {
+  isInteracting = true
+  isTelescopeView = true
+
+  const backDiv = document.getElementById("back-key") as HTMLDivElement
+  backDiv.style.display = "flex"
+
+  playerCamera.viewRaycaster.far = 0
+}
+
+function changeToBedroomView() {
+  isTelescopeView = false
+  isInteracting = false
+
+  const backDiv = document.getElementById("back-key") as HTMLDivElement
+  backDiv.style.display = "none"
+
+  playerCamera.viewRaycaster.far = 2
 }

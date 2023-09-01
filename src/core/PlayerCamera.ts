@@ -1,6 +1,9 @@
-import { Box3, Camera, Euler, Quaternion, Ray, Vector3 } from "three"
+import { Box3, Camera, Euler, Quaternion, Ray, Raycaster, Vector3 } from "three"
+
 import { FirstPersonControls } from "three/addons/controls/FirstPersonControls.js"
+
 import { clamp } from "three/src/math/MathUtils.js"
+
 import { PlayerControls } from "./PlayerControls"
 
 export class PlayerCamera extends FirstPersonControls {
@@ -17,11 +20,17 @@ export class PlayerCamera extends FirstPersonControls {
   private headBobTimer: number
   private objects: Box3[]
 
-  constructor(camera: Camera, canvas: HTMLCanvasElement) {
+  viewRaycaster: Raycaster
+
+  constructor(
+    camera: Camera,
+    control: PlayerControls,
+    canvas: HTMLCanvasElement
+  ) {
     super(camera, canvas)
 
     this.camera = camera
-    this.control = new PlayerControls(canvas)
+    this.control = control
     this.rotation = new Quaternion()
     this.translation = new Vector3(1.5, 1, 0)
     this.phi = 0
@@ -32,6 +41,9 @@ export class PlayerCamera extends FirstPersonControls {
     this.headBobActive = false
     this.headBobTimer = 0
     this.objects = []
+
+    this.viewRaycaster = new Raycaster()
+    this.viewRaycaster.far = 2
   }
 
   update_(timeElapsedS: number) {
